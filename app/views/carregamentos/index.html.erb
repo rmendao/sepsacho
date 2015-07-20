@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Carregamentos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Silo</th>
+      <th>User silo</th>
+      <th>Data</th>
+      <th>Farinha</th>
+      <th>Quilograma</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @carregamentos.each do |carregamento| %>
+      <tr>
+        <td><%= carregamento.silo %></td>
+        <td><%= carregamento.user_silo %></td>
+        <td><%= carregamento.data %></td>
+        <td><%= carregamento.farinha %></td>
+        <td><%= carregamento.quilograma %></td>
+        <td><%= link_to 'Show', carregamento %></td>
+        <td><%= link_to 'Edit', edit_carregamento_path(carregamento) %></td>
+        <td><%= link_to 'Destroy', carregamento, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Carregamento', new_carregamento_path %>

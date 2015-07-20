@@ -1,0 +1,2 @@
+module AlarmeSilosHelper
+end

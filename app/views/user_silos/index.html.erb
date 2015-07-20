@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing User Silos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Empresa</th>
+      <th>Contato</th>
+      <th>Rfid</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @user_silos.each do |user_silo| %>
+      <tr>
+        <td><%= user_silo.nome %></td>
+        <td><%= user_silo.empresa %></td>
+        <td><%= user_silo.contato %></td>
+        <td><%= user_silo.rfid %></td>
+        <td><%= link_to 'Show', user_silo %></td>
+        <td><%= link_to 'Edit', edit_user_silo_path(user_silo) %></td>
+        <td><%= link_to 'Destroy', user_silo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New User silo', new_user_silo_path %>

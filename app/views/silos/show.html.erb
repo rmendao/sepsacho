@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Capacidade:</strong>
+  <%= @silo.capacidade %>
+</p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @silo.tipo %>
+</p>
+
+<p>
+  <strong>Exploracao:</strong>
+  <%= @silo.exploracao %>
+</p>
+
+<%= link_to 'Edit', edit_silo_path(@silo) %> |
+<%= link_to 'Back', silos_path %>

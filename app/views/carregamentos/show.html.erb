@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Silo:</strong>
+  <%= @carregamento.silo %>
+</p>
+
+<p>
+  <strong>User silo:</strong>
+  <%= @carregamento.user_silo %>
+</p>
+
+<p>
+  <strong>Data:</strong>
+  <%= @carregamento.data %>
+</p>
+
+<p>
+  <strong>Farinha:</strong>
+  <%= @carregamento.farinha %>
+</p>
+
+<p>
+  <strong>Quilograma:</strong>
+  <%= @carregamento.quilograma %>
+</p>
+
+<%= link_to 'Edit', edit_carregamento_path(@carregamento) %> |
+<%= link_to 'Back', carregamentos_path %>

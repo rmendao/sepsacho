@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  alarme_id: 
+  silo_id: 
+  tipo: 1
+
+two:
+  alarme_id: 
+  silo_id: 
+  tipo: 1

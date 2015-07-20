@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Data:</strong>
+  <%= @historico_silo.data %>
+</p>
+
+<p>
+  <strong>Quilograma:</strong>
+  <%= @historico_silo.quilograma %>
+</p>
+
+<p>
+  <strong>Silo:</strong>
+  <%= @historico_silo.silo %>
+</p>
+
+<%= link_to 'Edit', edit_historico_silo_path(@historico_silo) %> |
+<%= link_to 'Back', historico_silos_path %>

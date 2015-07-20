@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  alarme_silo_id: 
+  date: 2015-07-14 13:58:19
+
+two:
+  alarme_silo_id: 
+  date: 2015-07-14 13:58:19

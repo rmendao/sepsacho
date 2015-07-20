@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @alarme.tipo %>
+</p>
+
+<p>
+  <strong>Limite:</strong>
+  <%= @alarme.limite %>
+</p>
+
+<p>
+  <strong>Acao:</strong>
+  <%= @alarme.acao %>
+</p>
+
+<%= link_to 'Edit', edit_alarme_path(@alarme) %> |
+<%= link_to 'Back', alarmes_path %>

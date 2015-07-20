@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Alarmes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tipo</th>
+      <th>Limite</th>
+      <th>Acao</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @alarmes.each do |alarme| %>
+      <tr>
+        <td><%= alarme.tipo %></td>
+        <td><%= alarme.limite %></td>
+        <td><%= alarme.acao %></td>
+        <td><%= link_to 'Show', alarme %></td>
+        <td><%= link_to 'Edit', edit_alarme_path(alarme) %></td>
+        <td><%= link_to 'Destroy', alarme, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Alarme', new_alarme_path %>

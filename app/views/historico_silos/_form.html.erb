@@ -1,0 +1,29 @@
+<%= form_for(@historico_silo) do |f| %>
+  <% if @historico_silo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@historico_silo.errors.count, "error") %> prohibited this historico_silo from being saved:</h2>
+
+      <ul>
+      <% @historico_silo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :data %><br>
+    <%= f.datetime_select :data %>
+  </div>
+  <div class="field">
+    <%= f.label :quilograma %><br>
+    <%= f.number_field :quilograma %>
+  </div>
+  <div class="field">
+    <%= f.label :silo_id %><br>
+    <%= f.text_field :silo_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

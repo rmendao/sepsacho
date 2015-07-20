@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sep Sancho</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+
+  <%= csrf_meta_tags %>
+</head>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+</style>
+  <body>
+    <div id="main-container" class="container-fluid">
+      <div id="waiting" class="waitboard">
+        <div class="loading"></div>
+      </div>
+      <div class="row">
+
+        <div id="main-content" class="col-xs-9">
+        	  <%= render 'shared/navigation' %>
+
+          <%= yield %>
+          <div id="graph">
+          </div>
+          <%= debug(params) if Rails.env.development? %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

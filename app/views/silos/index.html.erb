@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Silos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Capacidade</th>
+      <th>Tipo</th>
+      <th>Exploracao</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @silos.each do |silo| %>
+      <tr>
+        <td><%= silo.capacidade %></td>
+        <td><%= silo.tipo %></td>
+        <td><%= silo.exploracao %></td>
+        <td><%= link_to 'Show', silo %></td>
+        <td><%= link_to 'Edit', edit_silo_path(silo) %></td>
+        <td><%= link_to 'Destroy', silo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Silo', new_silo_path %>

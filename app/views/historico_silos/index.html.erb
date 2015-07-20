@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Historico Silos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Quilograma</th>
+      <th>Silo</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @historico_silos.each do |historico_silo| %>
+      <tr>
+        <td><%= historico_silo.data %></td>
+        <td><%= historico_silo.quilograma %></td>
+        <td><%= historico_silo.silo %></td>
+        <td><%= link_to 'Show', historico_silo %></td>
+        <td><%= link_to 'Edit', edit_historico_silo_path(historico_silo) %></td>
+        <td><%= link_to 'Destroy', historico_silo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Historico silo', new_historico_silo_path %>

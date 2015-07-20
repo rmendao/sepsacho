@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nome:</strong>
+  <%= @user_silo.nome %>
+</p>
+
+<p>
+  <strong>Empresa:</strong>
+  <%= @user_silo.empresa %>
+</p>
+
+<p>
+  <strong>Contato:</strong>
+  <%= @user_silo.contato %>
+</p>
+
+<p>
+  <strong>Rfid:</strong>
+  <%= @user_silo.rfid %>
+</p>
+
+<%= link_to 'Edit', edit_user_silo_path(@user_silo) %> |
+<%= link_to 'Back', user_silos_path %>

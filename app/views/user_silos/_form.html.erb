@@ -1,0 +1,33 @@
+<%= form_for(@user_silo) do |f| %>
+  <% if @user_silo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user_silo.errors.count, "error") %> prohibited this user_silo from being saved:</h2>
+
+      <ul>
+      <% @user_silo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :nome %><br>
+    <%= f.text_field :nome %>
+  </div>
+  <div class="field">
+    <%= f.label :empresa %><br>
+    <%= f.text_field :empresa %>
+  </div>
+  <div class="field">
+    <%= f.label :contato %><br>
+    <%= f.text_field :contato %>
+  </div>
+  <div class="field">
+    <%= f.label :rfid %><br>
+    <%= f.text_field :rfid %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,499 @@
+<h1 xmlns="http://www.w3.org/1999/html">Monitorização de Silos</H1>
+
+
+<div id="form" class="explorador">
+  <%= collection_select(@exploracao, :exploracao_id, Exploracao.all, :exploracao_id, :nome, {:include_blank => 'Seleccione Exploração'}, html_options ={:onchange => "switch_box(this.value)"}) %>
+
+</div>
+
+<div id="check"></div>
+<div id="container"></div>
+
+<div id="silosimg"></div>
+<div id="siloscheckbox" class="groupbox"></div>
+
+
+<script>
+    var my_exploracao;
+    var silos = [];
+    function switch_box(value) {
+        var loading = document.getElementById("waiting");
+        loading.style.visibility = "visible";
+        my_exploracao = value;
+        $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            url: '/silos.json?exploracao_id=' + value,
+            dataType: 'json',
+            data: "{}",
+            success: function (received_data) {
+                var container = document.getElementById("container");
+                var silosimg = document.getElementById("silosimg");
+                while (container.hasChildNodes()) {
+                    container.removeChild(container.lastChild);
+                }
+                silos = [];
+                var chboxContainer = document.getElementById("siloscheckbox");
+
+                while (chboxContainer.hasChildNodes()) {
+                    chboxContainer.removeChild(chboxContainer.lastChild);
+                }
+                while (silosimg.hasChildNodes()) {
+                    silosimg.removeChild(silosimg.lastChild);
+                }
+
+                for (item in received_data) {
+                    var elem = received_data[item];
+                    var isLast = item == received_data.length - 1 ? true : false;
+                    GetLoadPercentage(elem.id, isLast);
+
+                }
+                setTimeout(function () {
+                    switch_box(value)
+                }, 3600000);
+
+            },
+            error: function (result) {
+            }
+        });
+
+
+    }
+
+    function GetLoadPercentage(silo, isLast) {
+        $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            url: '/historico_silos.json?silos=' + silo,
+            dataType: 'json',
+            data: "{}",
+            success: function (received_data) {
+                var data = received_data[received_data.length - 1];
+                var last = data != undefined ? data.quilograma : 0;
+
+
+                var capacidade = -1;
+                $.ajax({
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    url: '/silos/' + silo,
+                    dataType: 'json',
+                    data: "{}",
+                    success: function (received_data) {
+                        if (received_data != undefined) {
+                            capacidade = received_data.capacidade;
+                            var percentage = Math.round(last * 100 / capacidade);
+                            CreateSVG(percentage, last, received_data.tipo, silo);
+                            if (isLast) {
+                                var loading = document.getElementById("waiting");
+                                loading.style.visibility = "hidden";
+                            }
+                        }
+
+                    },
+                    error: function (result) {
+                        return -1;
+                    }
+                });
+            },
+            error: function (result) {
+                return -1;
+            }
+        });
+    }
+
+    function CreateSVG(percentage, quilo, name, id) {
+        var xmlns = "http://www.w3.org/2000/svg";
+        var boxWidth = 100;
+        var boxHeight = 320;
+        var color;
+
+        if (percentage < 25) {
+            color = "red";
+        } else if (percentage < 50) {
+            color = "orange";
+        } else if (percentage < 75) {
+            color = "yellow";
+        } else if (percentage <= 100) {
+            color = "green";
+        }
+
+        var svgElem = document.createElementNS(xmlns, "svg");
+        svgElem.setAttributeNS(null, "viewBox", "0 0 " + boxWidth + " " + boxHeight);
+        svgElem.setAttributeNS(null, "width", boxWidth);
+        svgElem.setAttributeNS(null, "height", boxHeight);
+        svgElem.setAttributeNS(null, "rx", 20);
+        svgElem.setAttributeNS(null, "ry", 20);
+
+        svgElem.style.display = "inline";
+        svgElem.style.marginLeft = 10;
+
+        var g = document.createElementNS(xmlns, "g");
+        svgElem.appendChild(g);
+        g.setAttributeNS(null, 'transform', 'matrix(1,0,0,-1,0,300)');
+
+        // draw linear gradient
+        var defs = document.createElementNS(xmlns, "defs");
+        var grad = document.createElementNS(xmlns, "linearGradient");
+        grad.setAttributeNS(null, "id", "gradient");
+        grad.setAttributeNS(null, "x1", "0%");
+        grad.setAttributeNS(null, "x2", "0%");
+        grad.setAttributeNS(null, "y1", "100%");
+        grad.setAttributeNS(null, "y2", "0%");
+
+        var stopTop = document.createElementNS(xmlns, "stop");
+        stopTop.setAttributeNS(null, "offset", percentage + "%");
+        stopTop.setAttributeNS(null, "stop-color", color);
+        grad.appendChild(stopTop);
+        var stopBottom = document.createElementNS(xmlns, "stop");
+        stopBottom.setAttributeNS(null, "offset", percentage + "%");
+        stopBottom.setAttributeNS(null, "stop-color", "#ffffff");
+        grad.appendChild(stopBottom);
+        defs.appendChild(grad);
+        g.appendChild(defs);
+
+        var shape = document.createElementNS(xmlns, "rect");
+        shape.setAttributeNS(null, "x", 5);
+        shape.setAttributeNS(null, "y", 5);
+        shape.setAttributeNS(null, "rx", 20);
+        shape.setAttributeNS(null, "ry", 20);
+        shape.setAttributeNS(null, 'stroke', "#000000");
+        shape.setAttributeNS(null, 'stroke-width', 3);
+        shape.setAttributeNS(null, "width", boxWidth - 20);
+        shape.setAttributeNS(null, "height", boxHeight - 20);
+        shape.setAttributeNS(null, 'fill', "url(#gradient)");
+        shape.setAttributeNS(null, 'opacity', 0.5);
+        svgElem.appendChild(shape);
+
+        var text = document.createElementNS(xmlns, "text");
+        text.setAttributeNS(null, "x", 20);
+        text.setAttributeNS(null, "y", 20);
+        text.setAttributeNS(null, "fill", "black");
+        text.setAttributeNS(null, "x", 20);
+        var textNode = document.createTextNode(percentage + "%");
+        text.appendChild(textNode);
+        svgElem.appendChild(text);
+
+
+        var textkg = document.createElementNS(xmlns, "text");
+        textkg.setAttributeNS(null, "x", 20);
+        textkg.setAttributeNS(null, "y", 40);
+        textkg.setAttributeNS(null, "fill", "black");
+        textkg.setAttributeNS(null, "x", 20);
+        var textNode = document.createTextNode(quilo + "Kg");
+        textkg.appendChild(textNode);
+        svgElem.appendChild(textkg);
+
+        var div = document.createElement('div');
+        div.setAttribute("class", "checkbox");
+
+        var checkbox = document.createElement('input');
+        checkbox.setAttribute("type", "checkbox");
+        checkbox.setAttribute("name", name);
+        checkbox.setAttribute("value", id);
+        checkbox.setAttribute("id", id);
+
+        checkbox.onclick =
+                function (obj) {
+                    if (obj.target.checked) {
+                        silos[silos.length] = obj.target.id;
+
+                    } else {
+                        var index = silos.indexOf(obj.target.id);
+                        if (index > -1) {
+
+                            silos.splice(index, 1);
+
+                        }
+                    }
+                    refresh();
+                };
+        div.appendChild(checkbox);
+
+        var text2 = document.createElement("text");
+        var textNode2 = document.createTextNode(name);
+        text2.appendChild(textNode2);
+        div.appendChild(text2);
+
+        var svgContainer = document.getElementById("silosimg");
+        svgContainer.appendChild(svgElem);
+
+        var chboxContainer = document.getElementById("siloscheckbox");
+        chboxContainer.appendChild(div);
+
+
+    }
+
+</script>
+
+
+
+<div id="container"></div>
+<!--<div id='mygraph'/>
+-->
+<div id="mygraph">
+  <svg id="visualisation" width="800" height="500"></svg>
+
+  <select onchange="redesign(this)" class="combotime" id="intervaldefiner">
+    <option value="completo">Completo</option>
+    <option value="hora">Última hora</option>
+    <option value="dia">Último dia</option>
+    <option value="semana">Última semana</option>
+    <option value="mes">Último mês</option>
+    <option value="ano">Último ano</option>
+  </select>
+
+</div>
+
+<script>
+
+    var interval = "completo";
+
+    var refresh = function set_data() {
+        //TODO: all silos from array
+
+        var visualisation = document.getElementById("visualisation");
+        var idef = document.getElementById("intervaldefiner");
+        while (visualisation.hasChildNodes()) {
+            visualisation.removeChild(visualisation.lastChild);
+        }
+        idef.style.visibility = "hidden";
+
+
+        var str = "";
+        for (x in silos) {
+            str += silos[x]
+            if (x != silos.length - 1)
+                str += ","
+        }
+        var url = "";
+        if (silos.length > 0) {
+
+            url = '/historico_silos.json?silos=' + str;
+
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: url,
+                dataType: 'json',
+                data: "{}",
+                success: function (received_data) {
+                    var div_where_to_draw = "div.graph";
+                    draw_histogram(div_where_to_draw, received_data);
+                    idef.style.visibility = "visible";
+                    setTimeout(refresh, 60000);
+                },
+                error: function (result) {
+                }
+            });
+        }
+    }
+
+    //Desenha o gráfico
+    function draw_histogram(where_to_draw, data) {
+
+
+        //Converte para date javascript
+        var parseDate = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ").parse;
+        data.forEach(function (d) {
+            d.data = parseDate(d.data);
+        });
+
+        //Filtra por data
+        var information = GetArrayOfDate(data);
+
+
+        var vis = d3.select("#visualisation"),
+                WIDTH = 600,
+                HEIGHT = 400,
+                margin = {top: 20, right: 20, bottom: 30, left: 50},
+                width = 560 - margin.left - margin.right,
+                height = 380 - margin.top - margin.bottom,
+
+
+                xScale = d3.time.scale()
+                        .range([0, width]).domain(d3.extent(information, function (d) {
+                            return d.data;
+                        }));
+
+        yScale = d3.scale.linear().range([HEIGHT - margin.top, margin.bottom]).domain(d3.extent(information, function (d) {
+            return d.quilograma;
+        })),
+
+                xAxis = d3.svg.axis()
+                        .scale(xScale).ticks(5),
+                yAxis = d3.svg.axis()
+                        .scale(yScale);
+
+
+        vis.append("svg:g")
+                .attr("class", "axis")
+                .attr("transform", "translate(" + (margin.left) + "," + (HEIGHT - margin.bottom) + ")")
+                .call(xAxis);
+
+        yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+        vis.append("svg:g")
+                .attr("class", "axis")
+                .attr("transform", "translate(" + (margin.left) + ",0)")
+                .call(yAxis);
+
+        var lineGen = d3.svg.line()
+                .x(function (d) {
+                    return xScale(d.data);
+                })
+                .y(function (d) {
+                    return yScale(d.quilograma);
+                });
+
+
+        var universe = new Array();
+        var control = new Array();
+        for (var i = 0; i < information.length; i++) {
+            var elem = information[i];
+            var n = control.indexOf(elem.silo_id);
+            if (n == -1) {
+                universe[universe.length] = GetDataBySilosID(information, elem.silo_id);
+                control[control.length] = elem.silo_id;
+            }
+        }
+
+       // vis.append("rect").attr("id","caixa").attr("class", "legend");
+       // vis.append("rect").attr("id","caixa").attr("class", "legendint");
+
+        vis.append("text")                                    // *******
+                .attr("x",width)
+                .attr("y",40)
+                .style("fill", "black")
+                .attr("class","textlegend")
+                .text("Legenda: ");
+
+        for (var i = 0; i < universe.length; i++) {
+
+            var color = getColor(i);
+            vis.append('svg:path')
+                    .attr('d', lineGen(universe[i]))
+                    .attr('stroke', color)
+                    .attr('stroke-width', 2)
+                    .attr('fill', 'none')
+                    .attr("data-legend",function(d) { return control[i]})
+                    .attr("transform", "translate(" + (margin.left) + "," + 0 + ")");
+
+            // Add the Legend
+            vis.append("text")                                    // *******
+                    .attr("x",width)
+                    .attr("y",55+15*i)
+                    .attr("class","textlegend")
+                    .style("fill", color)             // *******
+                    .text("Silo "+universe[i][0].silo_id);
+
+        }
+
+    }
+
+
+    //Devolve uma cor aleatória
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    //Devolve uma cor
+    function getColor(i) {
+        // color array
+        var bluescale4 = ["#8BA9D0", "#6A90C1", "#066CA9", "#004B8C"];
+
+        return bluescale4[i];
+    }
+
+
+    function redesign(elem) {
+        interval = elem.value;
+        refresh();
+    }
+
+
+    //Devolve os dados por silo
+    function GetDataBySilosID(array, silo_id) {
+        var result = new Array();
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].silo_id == silo_id) {
+                result[result.length] = array[i];
+            }
+        }
+        return result;
+    }
+
+    //Devolve o array de dados consoante o periodo de tempo seleccionado
+    function GetArrayOfDate(array) {
+        var result = new Array();
+
+        switch (interval) {
+            case "completo":
+                for (var i = 0; i < array.length; i++) {
+
+                    result[i] = array[i];
+                }
+                break;
+            case "hora":
+                var ONE_HOUR = 60 * 60 * 1000;
+                var currentdate = new Date();
+                var count = 0;
+                for (var i = 0; i < array.length; i++) {
+                    if ((currentdate - array[i].data) < ONE_HOUR) {
+                        result[count++] = array[i];
+                    }
+                }
+                break;
+            case "dia":
+                var ONE_DAY = 24 * 60 * 60 * 1000;
+                var currentdate = new Date();
+                var count = 0;
+                for (var i = 0; i < array.length; i++) {
+                    if ((currentdate - array[i].data) < ONE_DAY) {
+                        result[count++] = array[i];
+                    }
+                }
+                break;
+            case "semana":
+                var ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+                var currentdate = new Date();
+                var count = 0;
+                for (var i = 0; i < array.length; i++) {
+                    if ((currentdate - array[i].data) < ONE_WEEK) {
+                        result[count++] = array[i];
+                    }
+                }
+                break;
+            case "mes":
+                var ONE_MONTH = 30 * 7 * 24 * 60 * 60 * 1000;
+                var currentdate = new Date();
+                var count = 0;
+                for (var i = 0; i < array.length; i++) {
+                    if ((currentdate - array[i].data) < ONE_MONTH) {
+                        result[count++] = array[i];
+                    }
+                }
+                break;
+            case "ano":
+                var ONE_YEAR = 365 * 30 * 7 * 24 * 60 * 60 * 1000;
+                var currentdate = new Date();
+                var count = 0;
+                for (var i = 0; i < array.length; i++) {
+                    if ((currentdate - array[i].data) < ONE_YEAR) {
+                        result[count++] = array[i];
+                    }
+                }
+                break;
+        }
+
+        return result;
+    }
+
+
+</script>

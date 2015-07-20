@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  tipo: MyString
+  limite: 1
+  acao: 1
+
+two:
+  tipo: MyString
+  limite: 1
+  acao: 1

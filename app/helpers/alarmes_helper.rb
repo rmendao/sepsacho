@@ -1,0 +1,2 @@
+module AlarmesHelper
+end

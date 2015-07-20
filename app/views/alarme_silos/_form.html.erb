@@ -1,0 +1,29 @@
+<%= form_for(@alarme_silo) do |f| %>
+  <% if @alarme_silo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@alarme_silo.errors.count, "error") %> prohibited this alarme_silo from being saved:</h2>
+
+      <ul>
+      <% @alarme_silo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :alarme_id %><br>
+    <%= f.text_field :alarme_id %>
+  </div>
+  <div class="field">
+    <%= f.label :silo_id %><br>
+    <%= f.text_field :silo_id %>
+  </div>
+  <div class="field">
+    <%= f.label :tipo %><br>
+    <%= f.number_field :tipo %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

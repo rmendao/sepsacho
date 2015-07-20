@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Alarme:</strong>
+  <%= @alarme_silo.alarme %>
+</p>
+
+<p>
+  <strong>Silo:</strong>
+  <%= @alarme_silo.silo %>
+</p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @alarme_silo.tipo %>
+</p>
+
+<%= link_to 'Edit', edit_alarme_silo_path(@alarme_silo) %> |
+<%= link_to 'Back', alarme_silos_path %>

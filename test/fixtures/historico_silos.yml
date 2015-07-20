@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  data: 2015-07-14 13:58:26
+  quilograma: 1
+  silo_id: 
+
+two:
+  data: 2015-07-14 13:58:26
+  quilograma: 1
+  silo_id: 

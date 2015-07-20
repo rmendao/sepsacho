@@ -1,0 +1,29 @@
+<%= form_for(@silo) do |f| %>
+  <% if @silo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@silo.errors.count, "error") %> prohibited this silo from being saved:</h2>
+
+      <ul>
+      <% @silo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :capacidade %><br>
+    <%= f.text_field :capacidade %>
+  </div>
+  <div class="field">
+    <%= f.label :tipo %><br>
+    <%= f.text_field :tipo %>
+  </div>
+  <div class="field">
+    <%= f.label :exploracao_id %><br>
+    <%= f.collection_select :exploracao_id, Exploracao.all, :exploracao_id, :nome %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

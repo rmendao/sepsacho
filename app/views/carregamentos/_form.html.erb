@@ -1,0 +1,36 @@
+<%= form_for(@carregamento) do |f| %>
+  <% if @carregamento.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@carregamento.errors.count, "error") %> prohibited this carregamento from being saved:</h2>
+
+      <ul>
+      <% @carregamento.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= f.label :silo_id %><br>
+    <%= f.collection_select :silo_id, Silo.all, :silo_id, :silo_id %>
+  </div>
+  <div class="field">
+    <%= f.label :user_silo_id %><br>
+    <%= f.collection_select :user_silo_id, UserSilo.all, :user_silo_id, :nome %>
+  </div>
+  <div class="field">
+    <%= f.label :data %><br>
+    <%= f.datetime_select :data %>
+  </div>
+  <div class="field">
+    <%= f.label :farinha %><br>
+    <%= f.text_field :farinha %>
+  </div>
+  <div class="field">
+    <%= f.label :quilograma %><br>
+    <%= f.number_field :quilograma %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

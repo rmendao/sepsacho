@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Historico Alarme Silos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Alarme silo</th>
+      <th>Date</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @historico_alarme_silos.each do |historico_alarme_silo| %>
+      <tr>
+        <td><%= historico_alarme_silo.alarme_silo %></td>
+        <td><%= historico_alarme_silo.date %></td>
+        <td><%= link_to 'Show', historico_alarme_silo %></td>
+        <td><%= link_to 'Edit', edit_historico_alarme_silo_path(historico_alarme_silo) %></td>
+        <td><%= link_to 'Destroy', historico_alarme_silo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Historico alarme silo', new_historico_alarme_silo_path %>
