@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   resources :alarme_silos
   resources :alarmes
+  resources :users
 
   get 'historico_silos/get_data', :defaults => { :format => 'json' }
 

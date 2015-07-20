@@ -33,6 +33,9 @@ body {
 </style>
   <body>
     <div id="main-container" class="container-fluid">
+      <% flash.each do |message_type, message| %>
+          <div class="alert alert-<%= message_type %>"><%= message %></div>
+      <% end %>
       <div id="waiting" class="waitboard">
         <div class="loading"></div>
       </div>
