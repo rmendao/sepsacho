@@ -1,8 +1,10 @@
-<h1 xmlns="http://www.w3.org/1999/html">Monitorização de Silos</H1>
-
+<div class="center">
+<h1>Monitorização de Silos</H1>
+  <p>&nbsp;</p>
+<% if logged_in? %>
 
 <div id="form" class="explorador">
-  <%= collection_select(@exploracao, :exploracao_id, Exploracao.all, :exploracao_id, :nome, {:include_blank => 'Seleccione Exploração'}, html_options ={:onchange => "switch_box(this.value)"}) %>
+  <%= collection_select(@exploracao, :exploracao_id, Exploracao.find_by_sql("select * from exploracaos where user_id="+current_user.id.to_s), :exploracao_id, :nome, {:include_blank => 'Seleccione Exploração'}, html_options ={:onchange => "switch_box(this.value)"}) %>
 
 </div>
 
@@ -16,10 +18,24 @@
 <script>
     var my_exploracao;
     var silos = [];
+    var received_silos = [];
+
+
     function switch_box(value) {
         var loading = document.getElementById("waiting");
         loading.style.visibility = "visible";
         my_exploracao = value;
+
+        //Limpa o cenário
+        var silosimg = document.getElementById("silosimg");
+        var chboxContainer = document.getElementById("siloscheckbox");
+        while (chboxContainer.hasChildNodes()) {
+            chboxContainer.removeChild(chboxContainer.lastChild);
+        }
+        while (silosimg.hasChildNodes()) {
+            silosimg.removeChild(silosimg.lastChild);
+        }
+
         $.ajax({
             type: "GET",
             contentType: "application/json; charset=utf-8",
@@ -27,38 +43,40 @@
             dataType: 'json',
             data: "{}",
             success: function (received_data) {
-                var container = document.getElementById("container");
-                var silosimg = document.getElementById("silosimg");
-                while (container.hasChildNodes()) {
-                    container.removeChild(container.lastChild);
-                }
-                silos = [];
-                var chboxContainer = document.getElementById("siloscheckbox");
 
-                while (chboxContainer.hasChildNodes()) {
-                    chboxContainer.removeChild(chboxContainer.lastChild);
-                }
-                while (silosimg.hasChildNodes()) {
-                    silosimg.removeChild(silosimg.lastChild);
-                }
+                if(received_data.length > 0) {
 
-                for (item in received_data) {
-                    var elem = received_data[item];
-                    var isLast = item == received_data.length - 1 ? true : false;
-                    GetLoadPercentage(elem.id, isLast);
+                    var container = document.getElementById("container");
 
+                    while (container.hasChildNodes()) {
+                        container.removeChild(container.lastChild);
+                    }
+                    silos = [];
+                    received_silos = [];
+                    for (item in received_data) {
+
+                        var elem = received_data[item];
+                        var isLast = item == received_data.length - 1 ? true : false;
+                        GetLoadPercentage(elem.id, isLast);
+
+                    }
+                    setTimeout(function () {
+                        switch_box(value)
+                    }, 3600000);
+                }else{
+                    loading.style.visibility = "hidden";
                 }
-                setTimeout(function () {
-                    switch_box(value)
-                }, 3600000);
 
             },
             error: function (result) {
+
             }
         });
 
 
     }
+
+
 
     function GetLoadPercentage(silo, isLast) {
         $.ajax({
@@ -83,7 +101,8 @@
                         if (received_data != undefined) {
                             capacidade = received_data.capacidade;
                             var percentage = Math.round(last * 100 / capacidade);
-                            CreateSVG(percentage, last, received_data.tipo, silo);
+
+                            CreateSVG(percentage, last, received_data.tipo, silo, isLast);
                             if (isLast) {
                                 var loading = document.getElementById("waiting");
                                 loading.style.visibility = "hidden";
@@ -102,7 +121,7 @@
         });
     }
 
-    function CreateSVG(percentage, quilo, name, id) {
+    function CreateSVG(percentage, quilo, name, id, isLast) {
         var xmlns = "http://www.w3.org/2000/svg";
         var boxWidth = 100;
         var boxHeight = 320;
@@ -215,12 +234,29 @@
         text2.appendChild(textNode2);
         div.appendChild(text2);
 
-        var svgContainer = document.getElementById("silosimg");
-        svgContainer.appendChild(svgElem);
 
-        var chboxContainer = document.getElementById("siloscheckbox");
-        chboxContainer.appendChild(div);
+        received_silos[received_silos.length] = {id: id, check: div, silo: svgElem};
 
+        if(isLast) {
+
+            received_silos.sort(function compare(a,b) {
+                if (a.id < b.id)
+                    return -1;
+                if (a.id > b.id)
+                    return 1;
+                return 0;
+            });
+
+            for(item in received_silos) {
+
+
+                var svgContainer = document.getElementById("silosimg");
+                svgContainer.appendChild(received_silos[item].silo);
+
+                var chboxContainer = document.getElementById("siloscheckbox");
+                chboxContainer.appendChild(received_silos[item].check);
+            }
+        }
 
     }
 
@@ -232,12 +268,12 @@
 <!--<div id='mygraph'/>
 -->
 <div id="mygraph">
-  <svg id="visualisation" width="800" height="500"></svg>
+  <svg id="visualisation" width="700" height="500"></svg>
 
   <select onchange="redesign(this)" class="combotime" id="intervaldefiner">
     <option value="completo">Completo</option>
     <option value="hora">Última hora</option>
-    <option value="dia">Último dia</option>
+    <option value="dia" selected="selected">Último dia</option>
     <option value="semana">Última semana</option>
     <option value="mes">Último mês</option>
     <option value="ano">Último ano</option>
@@ -247,10 +283,9 @@
 
 <script>
 
-    var interval = "completo";
+    var interval = "dia";
 
     var refresh = function set_data() {
-        //TODO: all silos from array
 
         var visualisation = document.getElementById("visualisation");
         var idef = document.getElementById("intervaldefiner");
@@ -268,9 +303,12 @@
         }
         var url = "";
         if (silos.length > 0) {
-
-            url = '/historico_silos.json?silos=' + str;
-
+            var limit = GetDateLimit();
+            if(limit.length < 1){
+                url = '/historico_silos.json?silos=' + str;
+            }else {
+                url = '/historico_silos.json?silos=' + str + '&limit=' +limit;
+            }
             $.ajax({
                 type: "GET",
                 contentType: "application/json; charset=utf-8",
@@ -278,8 +316,7 @@
                 dataType: 'json',
                 data: "{}",
                 success: function (received_data) {
-                    var div_where_to_draw = "div.graph";
-                    draw_histogram(div_where_to_draw, received_data);
+                    draw_histogram(received_data);
                     idef.style.visibility = "visible";
                     setTimeout(refresh, 60000);
                 },
@@ -290,7 +327,7 @@
     }
 
     //Desenha o gráfico
-    function draw_histogram(where_to_draw, data) {
+    function draw_histogram(data) {
 
 
         //Converte para date javascript
@@ -299,24 +336,21 @@
             d.data = parseDate(d.data);
         });
 
-        //Filtra por data
-        var information = GetArrayOfDate(data);
-
 
         var vis = d3.select("#visualisation"),
-                WIDTH = 600,
-                HEIGHT = 400,
+                WIDTH = 700,
+                HEIGHT = 500,
                 margin = {top: 20, right: 20, bottom: 30, left: 50},
-                width = 560 - margin.left - margin.right,
-                height = 380 - margin.top - margin.bottom,
+                width = 660 - margin.left - margin.right,
+                height = 480 - margin.top - margin.bottom,
 
 
                 xScale = d3.time.scale()
-                        .range([0, width]).domain(d3.extent(information, function (d) {
+                        .range([0, width]).domain(d3.extent(data, function (d) {
                             return d.data;
                         }));
 
-        yScale = d3.scale.linear().range([HEIGHT - margin.top, margin.bottom]).domain(d3.extent(information, function (d) {
+        yScale = d3.scale.linear().range([HEIGHT - margin.top, margin.bottom]).domain(d3.extent(data, function (d) {
             return d.quilograma;
         })),
 
@@ -350,11 +384,11 @@
 
         var universe = new Array();
         var control = new Array();
-        for (var i = 0; i < information.length; i++) {
-            var elem = information[i];
+        for (var i = 0; i < data.length; i++) {
+            var elem = data[i];
             var n = control.indexOf(elem.silo_id);
             if (n == -1) {
-                universe[universe.length] = GetDataBySilosID(information, elem.silo_id);
+                universe[universe.length] = GetDataBySilosID(data, elem.silo_id);
                 control[control.length] = elem.silo_id;
             }
         }
@@ -363,7 +397,7 @@
        // vis.append("rect").attr("id","caixa").attr("class", "legendint");
 
         vis.append("text")                                    // *******
-                .attr("x",width)
+                .attr("x",width+40)
                 .attr("y",40)
                 .style("fill", "black")
                 .attr("class","textlegend")
@@ -382,7 +416,7 @@
 
             // Add the Legend
             vis.append("text")                                    // *******
-                    .attr("x",width)
+                    .attr("x",width+40)
                     .attr("y",55+15*i)
                     .attr("class","textlegend")
                     .style("fill", color)             // *******
@@ -427,6 +461,25 @@
             }
         }
         return result;
+    }
+
+    //Devolve o array de dados consoante o periodo de tempo seleccionado
+    function GetDateLimit() {
+
+        switch (interval) {
+            case "completo":
+                return "";
+            case "hora":
+                    return "hour";
+            case "dia":
+                return "day";
+            case "semana":
+                return "week";
+            case "mes":
+                return "month";
+            case "ano":
+                return "year";
+        }
     }
 
     //Devolve o array de dados consoante o periodo de tempo seleccionado
@@ -497,3 +550,8 @@
 
 
 </script>
+
+<% else %>
+    <%= link_to "Sign up now!", '/signup', class: "btn btn-lg btn-primary" %>
+<% end %>
+</div>

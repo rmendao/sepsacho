@@ -4,12 +4,40 @@
         <div class="alert alert-<%= message_type %>"><%= message %></div>
     <% end %>
     <%= link_to image_tag("SEPREMOTElogo.png", alt: "Sep Sancho logo"),
-                '#/' , id: "logo"%>
+                '/' , id: "logo"%>
     <nav>
       <ul class="nav navbar-nav navbar-right">
-        <li><%= link_to "Home",   '/' %></li>
-        <li><%= link_to "Help",   '/static_pages/help' %></li>
-        <li><%= link_to "Log in", '/login' %></li>
+        <li><%= link_to "Home", root_path %></li>
+        <li><%= link_to "Ajuda", "/static_pages/help" %></li>
+        <% if logged_in? %>
+            <li><%= link_to "Monitor", '/monitor' %></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Admin <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li><%= link_to "Explorações", exploracaos_path %></li>
+                <li><%= link_to "Silos", silos_path %></li>
+                <li><%= link_to "Carregamentos", carregamentos_path %></li>
+                <li><%= link_to "Alarmes", alarmes_path %></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Utilizador <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li><%= link_to "Perfil", current_user %></li>
+                <li><%= link_to "Configurações", edit_user_path(current_user) %></li>
+                <li class="divider"></li>
+                <li>
+                  <%= link_to "Log out", logout_path, method: "delete" %>
+                </li>
+              </ul>
+            </li>
+        <% else %>
+            <li><%= link_to "Log in", login_path %></li>
+        <% end %>
       </ul>
     </nav>
   </div>

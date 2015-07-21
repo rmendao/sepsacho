@@ -23,6 +23,7 @@
     <%= f.label :tipo %><br>
     <%= f.text_field :tipo %>
   </div>
+    <%= f.hidden_field :user_id, :value => current_user.id%>
   <div class="actions">
     <%= f.submit %>
   </div>

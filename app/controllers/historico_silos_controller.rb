@@ -5,7 +5,12 @@ class HistoricoSilosController < ApplicationController
   # GET /historico_silos.json
   def index
     if params[:silos]
-      @historico_silos = HistoricoSilo.find_by_sql("select * from Historico_Silos where silo_id in ("+params[:silos]+")")
+      if params[:limit]
+      @historico_silos = HistoricoSilo.find_by_sql("select * from Historico_Silos where silo_id in ("+params[:silos]+") and data >= now() - interval '1 "+params[:limit]+"'")
+      else
+        @historico_silos = HistoricoSilo.find_by_sql("select * from Historico_Silos where silo_id in ("+params[:silos]+")")
+      end
+
     else
     @historico_silos = HistoricoSilo.all
       end

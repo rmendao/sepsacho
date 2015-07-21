@@ -5,9 +5,11 @@
   <h2>
     The Real Internet of Pigs
   </h2>
-
+  <% if logged_in? %>
+      <%= link_to "Monitor", '/monitor', class: "btn btn-lg btn-primary" %>
+<% else %>
   <%= link_to "Sign up now!", '/signup', class: "btn btn-lg btn-primary" %>
-
+  <% end %>
   <p>&nbsp;</p>
 
   <%= link_to image_tag("SEPlogo.png", alt: "Sep Sancho logo"),

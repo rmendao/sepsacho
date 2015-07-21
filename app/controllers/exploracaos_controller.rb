@@ -7,6 +7,10 @@ class ExploracaosController < ApplicationController
     @exploracaos = Exploracao.all
   end
 
+  def get_by_user
+    @exploracaos = Exploracao.all
+  end
+
   # GET /exploracaos/1
   # GET /exploracaos/1.json
   def show
@@ -69,6 +73,6 @@ class ExploracaosController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def exploracao_params
-      params.require(:exploracao).permit(:localizacao, :nome, :tipo)
+      params.require(:exploracao).permit(:localizacao, :nome, :tipo, :user_id)
     end
 end
